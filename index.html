@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📚 书享 · PDF电子书 + 封面</title>
+    <style>
+        /* ===== 所有样式 ===== */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #3730a3;
+            --gold: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top:0; z-index:100;
+            padding:0 24px;
+        }
+        .navbar-inner {
+            max-width:1200px; margin:0 auto;
+            display:flex; align-items:center; justify-content:space-between;
+            height:64px;
+        }
+        .logo {
+            font-size:1.5rem; font-weight:800;
+            color:var(--primary);
+            cursor:pointer;
+            display:flex; align-items:center; gap:8px;
+            letter-spacing:-0.5px;
+        }
+        .logo span { background:linear-gradient(135deg,var(--primary),#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links {
+            display:flex; align-items:center; gap:12px;
+        }
+        .nav-links button {
+            background:none; border:none; font-family:inherit;
+            color:var(--text); font-weight:500; font-size:0.9rem;
+            padding:8px 16px; border-radius:20px;
+            cursor:pointer; transition:var(--transition);
+        }
+        .nav-links button:hover { background:#f1f5f9; color:var(--primary); }
+        .btn-nav {
+            background:var(--primary) !important; color:#fff !important;
+            font-weight:600 !important; padding:10px 22px !important;
+            border-radius:24px !important;
+        }
+        .btn-nav:hover { background:var(--primary-dark) !important; transform:translateY(-1px); box-shadow:0 4px 14px rgba(79,70,229,0.35); }
+        .btn-nav-outline {
+            background:transparent !important; color:var(--primary) !important;
+            border:2px solid var(--primary) !important;
+            font-weight:600 !important; padding:8px 18px !important;
+        }
+        .btn-nav-outline:hover { background:var(--primary) !important; color:#fff !important; }
+        .user-avatar {
+            width:36px; height:36px; border-radius:50%;
+            background:linear-gradient(135deg,#6366f1,#8b5cf6);
+            color:#fff; display:flex; align-items:center; justify-content:center;
+            font-weight:700; cursor:pointer; font-size:0.85rem;
+        }
+        .menu-toggle { display:none; background:none; border:none; font-size:1.6rem; cursor:pointer; }
+        .badge-admin { background:#fef3c7; color:#92400e; font-size:0.7rem; font-weight:700; padding:2px 10px; border-radius:12px; margin-left:4px; }
+        .container { max-width:1200px; margin:0 auto; padding:28px 24px 60px; }
+        .hero { text-align:center; padding:40px 20px 30px; }
+        .hero h1 { font-size:2.6rem; font-weight:900; letter-spacing:-1px; margin-bottom:12px; background:linear-gradient(135deg,#1e293b 0%,#4f46e5 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1.2; }
+        .hero p { font-size:1.1rem; color:var(--text-light); max-width:550px; margin:0 auto 20px; }
+        .badge-row { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+        .badge { background:#fff; border:1px solid var(--border); padding:6px 16px; border-radius:20px; font-size:0.8rem; font-weight:500; color:var(--text-light); box-shadow:var(--shadow); display:inline-flex; align-items:center; gap:6px; }
+        .section-title { font-size:1.3rem; font-weight:700; margin:30px 0 18px; display:flex; align-items:center; gap:8px; }
+        .book-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:20px; margin-bottom:30px; }
+        .book-card {
+            background:var(--card-bg);
+            border-radius:var(--radius);
+            overflow:hidden;
+            box-shadow:var(--shadow);
+            transition:var(--transition);
+            cursor:pointer;
+            border:1px solid transparent;
+            display:flex;
+            flex-direction:column;
+        }
+        .book-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color:#e2e8f0; }
+        .book-cover {
+            height:200px;
+            background:linear-gradient(135deg,#e0e7ff,#c7d2fe);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:3.2rem;
+            position:relative;
+            overflow:hidden;
+        }
+        .book-cover img {
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+        }
+        .book-cover .emoji-placeholder {
+            font-size:3.2rem;
+        }
+        .price-tag {
+            position:absolute; top:12px; right:12px;
+            background:#fff; color:var(--primary-dark);
+            font-weight:700; padding:4px 14px;
+            border-radius:20px; font-size:0.8rem;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        }
+        .price-tag.free { color:var(--success); background:#ecfdf5; }
+        .book-info { padding:14px 16px 16px; flex:1; display:flex; flex-direction:column; }
+        .book-info h3 { font-size:1rem; font-weight:700; margin-bottom:2px; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .book-info .author { font-size:0.8rem; color:var(--text-light); margin-bottom:6px; }
+        .book-info .desc { font-size:0.78rem; color:#94a3b8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; flex:1; margin-bottom:8px; }
+        .book-meta { display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-light); }
+        .purchased-badge { color:var(--success); font-weight:600; font-size:0.72rem; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:flex; align-items:center; justify-content:center; animation:fadeIn 0.2s ease; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        .modal { background:#fff; border-radius:var(--radius); padding:28px 24px; max-width:520px; width:90%; box-shadow:var(--shadow-lg); position:relative; animation:slideUp 0.3s ease; max-height:85vh; overflow-y:auto; }
+        @keyframes slideUp { from{transform:translateY(30px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+        .modal-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#94a3b8; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+        .modal-close:hover { background:#f1f5f9; color:#1e293b; }
+        .modal h2 { font-size:1.4rem; font-weight:700; margin-bottom:18px; text-align:center; }
+        .form-group { margin-bottom:14px; }
+        .form-group label { display:block; font-weight:600; margin-bottom:4px; font-size:0.85rem; color:#475569; }
+        .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; font-family:inherit; background:#fafbfc; transition:var(--transition); }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(99,102,241,0.1); background:#fff; }
+        .form-group textarea { min-height:80px; resize:vertical; }
+        .btn { display:inline-block; padding:11px 24px; border-radius:24px; font-weight:600; font-size:0.9rem; cursor:pointer; border:none; transition:var(--transition); text-align:center; }
+        .btn-primary { background:var(--primary); color:#fff; width:100%; }
+        .btn-primary:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 6px 20px rgba(79,70,229,0.35); }
+        .btn-gold { background:linear-gradient(135deg,#f59e0b,#fbbf24); color:#1e293b; width:100%; font-size:0.95rem; }
+        .btn-gold:hover { box-shadow:0 6px 20px rgba(245,158,11,0.4); transform:translateY(-2px); }
+        .btn-outline { background:#fff; color:var(--primary); border:2px solid var(--primary); width:100%; }
+        .btn-outline:hover { background:#f8faff; }
+        .btn-danger { background:var(--danger); color:#fff; width:100%; }
+        .btn-danger:hover { background:#dc2626; }
+        .btn-sm { padding:6px 16px; font-size:0.78rem; border-radius:18px; width:auto; }
+        .btn-success { background:var(--success); color:#fff; width:100%; }
+        .btn-success:hover { background:#059669; }
+        .text-center { text-align:center; }
+        .mt-2 { margin-top:10px; }
+        .mt-3 { margin-top:16px; }
+        .link-text { color:var(--primary); cursor:pointer; font-weight:500; text-decoration:underline; }
+        .link-text:hover { color:var(--primary-dark); }
+        .flex-row { display:flex; gap:10px; flex-wrap:wrap; }
+        .flex-row .btn { flex:1; min-width:100px; }
+        .toast { position:fixed; top:20px; right:20px; background:#1e293b; color:#fff; padding:12px 20px; border-radius:12px; z-index:999; font-weight:500; animation:slideInRight 0.3s ease; box-shadow:var(--shadow-lg); max-width:380px; }
+        @keyframes slideInRight { from{transform:translateX(120%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+        .toast.success { background:#059669; }
+        .toast.error { background:#dc2626; }
+        .detail-header {
+            display:flex;
+            gap:28px;
+            flex-wrap:wrap;
+            margin-bottom:28px;
+        }
+        .detail-cover {
+            width:180px;
+            height:240px;
+            border-radius:var(--radius);
+            flex-shrink:0;
+            overflow:hidden;
+            background:linear-gradient(135deg,#e0e7ff,#c7d2fe);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:4.5rem;
+            box-shadow:var(--shadow-md);
+        }
+        .detail-cover img {
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+        }
+        .detail-meta { flex:1; min-width:250px; }
+        .detail-meta h2 { font-size:1.6rem; font-weight:800; margin-bottom:4px; }
+        .detail-meta .author { color:var(--text-light); font-size:0.95rem; margin-bottom:8px; }
+        .detail-meta .price-large { font-size:1.8rem; font-weight:800; color:var(--primary-dark); margin:8px 0; }
+        .share-card { background:#fff; border-radius:var(--radius); padding:20px; text-align:center; box-shadow:var(--shadow-md); border:2px dashed #e2e8f0; }
+        .share-url { background:#f8fafc; padding:10px; border-radius:8px; word-break:break-all; font-size:0.82rem; color:#475569; margin:10px 0; border:1px solid var(--border); }
+        .btn-copy { background:#1e293b; color:#fff; padding:8px 18px; border-radius:20px; border:none; cursor:pointer; font-weight:600; }
+        .btn-copy:hover { background:#334155; }
+        .admin-panel { background:#fff; border-radius:var(--radius); padding:24px; box-shadow:var(--shadow-md); border:1px solid var(--border); }
+        .admin-panel .item-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:8px; }
+        .admin-panel .item-row:last-child { border-bottom:none; }
+        .admin-panel .item-info { font-weight:500; }
+        .admin-panel .item-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .empty-state { text-align:center; padding:60px 20px; color:#94a3b8; }
+        .empty-state p { font-size:1.2rem; margin-top:10px; }
+        .pdf-upload-zone, .cover-upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #fafbfc;
+            color: var(--text-light);
+        }
+        .pdf-upload-zone:hover, .cover-upload-zone:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+            color: var(--primary);
+        }
+        .pdf-upload-zone .icon, .cover-upload-zone .icon { font-size: 2rem; display: block; margin-bottom: 4px; }
+        .pdf-upload-zone .hint, .cover-upload-zone .hint { font-size: 0.85rem; }
+        .pdf-upload-zone .filename, .cover-upload-zone .filename { font-weight: 600; color: var(--primary); }
+        #pdfStatus, #coverStatus { font-size: 0.8rem; color: var(--text-light); margin-top: 6px; text-align: center; }
+        .pdf-download-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pdf-download-section .big-icon { font-size: 4rem; display: block; margin-bottom: 10px; }
+        .pdf-download-section .msg { font-size: 1.1rem; color: var(--text-light); }
+        @media (max-width:768px) {
+            .hero h1 { font-size:2rem; }
+            .book-grid { grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px; }
+            .book-cover { height:160px; }
+            .navbar { padding:0 14px; }
+            .nav-links { display:none; position:absolute; top:64px; left:0; right:0; background:#fff; flex-direction:column; padding:14px; border-bottom:2px solid var(--border); box-shadow:var(--shadow-md); gap:6px; }
+            .nav-links.open { display:flex; }
+            .menu-toggle { display:block; }
+            .detail-header { flex-direction:column; align-items:center; }
+            .detail-cover { width:150px; height:200px; font-size:3.2rem; }
+            .modal { padding:20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <div class="logo" onclick="showPage('home')">📚 <span>书享</span></div>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <div class="nav-links" id="navLinks">
+            <button onclick="showPage('home')">🏠 首页</button>
+            <button onclick="showPage('myBooks')">📖 我的书籍</button>
+            <button id="btnAdmin" style="display:none;" onclick="showPage('admin')">⚙️ 管理</button>
+            <button id="navLoginBtn" class="btn-nav" onclick="openModal('login')">登录</button>
+            <span id="navUserInfo" style="display:none;align-items:center;gap:10px;">
+                <span id="navUsername" style="font-weight:600;font-size:0.9rem;"></span>
+                <div class="user-avatar" id="navAvatar" title="个人中心" onclick="showPage('profile')"></div>
+                <button class="btn-nav-outline btn-sm" onclick="logout()">退出</button>
+            </span>
+        </div>
+    </div>
+</nav>
+
+<div class="container" id="mainContent"></div>
+<div id="modalContainer"></div>
+<div id="toastContainer"></div>
+
+<script>
+// ======================================================================
+//  数据层 + IndexedDB 管理 PDF 和封面图片
+// ======================================================================
+
+const LS = {
+    USERS: 'bookshare_users',
+    CURRENT_USER: 'bookshare_current_user',
+    PURCHASES: 'bookshare_purchases',
+    BOOKS: 'bookshare_books'
+};
+
+const DEFAULT_BOOKS = [];
+
+function getBooks() {
+    try {
+        const stored = localStorage.getItem(LS.BOOKS);
+        if (stored) return JSON.parse(stored);
+    } catch(e) { console.warn('读取书籍失败', e); }
+    return JSON.parse(JSON.stringify(DEFAULT_BOOKS));
+}
+function saveBooks(books) {
+    try { localStorage.setItem(LS.BOOKS, JSON.stringify(books)); } catch(e) { console.error('保存书籍失败', e); }
+}
+
+function getUsers() {
+    try {
+        const stored = localStorage.getItem(LS.USERS);
+        if (stored) return JSON.parse(stored);
+    } catch(e) { console.warn('读取用户失败', e); }
+    return [];
+}
+function saveUsers(users) {
+    try { localStorage.setItem(LS.USERS, JSON.stringify(users)); } catch(e) { console.error('保存用户失败', e); }
+}
+function getCurrentUser() {
+    try {
+        const stored = localStorage.getItem(LS.CURRENT_USER);
+        if (stored) return JSON.parse(stored);
+    } catch(e) { console.warn('读取当前用户失败', e); }
+    return null;
+}
+function saveCurrentUser(user) {
+    try { localStorage.setItem(LS.CURRENT_USER, JSON.stringify(user)); } catch(e) { console.error('保存当前用户失败', e); }
+}
+function getPurchases() {
+    try {
+        const stored = localStorage.getItem(LS.PURCHASES);
+        if (stored) return JSON.parse(stored);
+    } catch(e) { console.warn('读取购买记录失败', e); }
+    return {};
+}
+function savePurchases(purchases) {
+    try { localStorage.setItem(LS.PURCHASES, JSON.stringify(purchases)); } catch(e) { console.error('保存购买记录失败', e); }
+}
+
+// ---- IndexedDB 统一管理 ----
+const DB_NAME = 'BookshareAssets';
+const STORE_PDFS = 'pdfs';
+const STORE_COVERS = 'covers';
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 2);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_PDFS)) {
+                db.createObjectStore(STORE_PDFS, { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains(STORE_COVERS)) {
+                db.createObjectStore(STORE_COVERS, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+// ---- PDF 操作 ----
+async function savePDF(bookId, arrayBuffer, fileName) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_PDFS, 'readwrite');
+        const store = tx.objectStore(STORE_PDFS);
+        const record = { id: String(bookId), data: arrayBuffer, name: fileName };
+        store.put(record);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+    });
+}
+async function getPDF(bookId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_PDFS, 'readonly');
+        const store = tx.objectStore(STORE_PDFS);
+        const request = store.get(String(bookId));
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+async function deletePDF(bookId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_PDFS, 'readwrite');
+        const store = tx.objectStore(STORE_PDFS);
+        const request = store.delete(String(bookId));
+        request.onsuccess = () => resolve();
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+// ---- 封面操作 ----
+async function saveCover(bookId, arrayBuffer, mimeType, fileName) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_COVERS, 'readwrite');
+        const store = tx.objectStore(STORE_COVERS);
+        const record = { id: String(bookId), data: arrayBuffer, type: mimeType, name: fileName };
+        store.put(record);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+    });
+}
+async function getCover(bookId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_COVERS, 'readonly');
+        const store = tx.objectStore(STORE_COVERS);
+        const request = store.get(String(bookId));
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+async function deleteCover(bookId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_COVERS, 'readwrite');
+        const store = tx.objectStore(STORE_COVERS);
+        const request = store.delete(String(bookId));
+        request.onsuccess = () => resolve();
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+// ---- 全局 ----
+let booksCache = getBooks();
+let currentUser = getCurrentUser();
+
+// ---- 工具 ----
+function showToast(msg, type='') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 2800);
+}
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+function getCoverClass(id) {
+    const classes = ['accent1','accent2','accent3','accent4','accent5','accent6'];
+    return classes[id % classes.length];
+}
+function getCoverEmoji(title) {
+    const first = title ? title.charAt(0) : '📖';
+    const map = { '人':'🧑', '百':'📜', '活':'🌾', '三':'🚀', '小':'🦊', '曾':'📖' };
+    return map[first] || '📖';
+}
+function hasPurchased(bookId) {
+    if (!currentUser) return false;
+    const purchases = getPurchases();
+    const list = purchases[currentUser.id] || [];
+    return list.includes(bookId);
+}
+function isAdmin() {
+    return currentUser && currentUser.isAdmin === true;
+}
+
+function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+}
+function updateNavUI() {
+    const loginBtn = document.getElementById('navLoginBtn');
+    const userInfo = document.getElementById('navUserInfo');
+    const usernameSpan = document.getElementById('navUsername');
+    const avatar = document.getElementById('navAvatar');
+    const adminBtn = document.getElementById('btnAdmin');
+    if (currentUser) {
+        loginBtn.style.display = 'none';
+        userInfo.style.display = 'flex';
+        usernameSpan.textContent = currentUser.username;
+        avatar.textContent = currentUser.username.charAt(0).toUpperCase();
+        adminBtn.style.display = currentUser.isAdmin ? 'inline-block' : 'none';
+    } else {
+        loginBtn.style.display = 'inline-block';
+        userInfo.style.display = 'none';
+        adminBtn.style.display = 'none';
+    }
+}
+
+// ======================================================================
+//  模态框管理（含 PDF + 封面上传）
+// ======================================================================
+
+function openModal(type, data=null) {
+    const container = document.getElementById('modalContainer');
+    let html = '';
+
+    if (type === 'login') {
+        html = `
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+                <h2>🔑 登录</h2>
+                <form id="loginForm">
+                    <div class="form-group"><label>用户名</label><input type="text" id="loginUsername" required></div>
+                    <div class="form-group"><label>密码</label><input type="password" id="loginPassword" required></div>
+                    <button type="submit" class="btn btn-primary">登 录</button>
+                </form>
+                <p class="text-center mt-2">还没有账号？<span class="link-text" id="goToRegister">立即注册</span></p>
+                <p class="text-center mt-2" style="font-size:0.75rem;color:#94a3b8;">管理员账号: admin / admin</p>
+            </div>
+        </div>`;
+    } else if (type === 'register') {
+        html = `
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+                <h2>📝 注册</h2>
+                <form id="registerForm">
+                    <div class="form-group"><label>用户名</label><input type="text" id="regUsername" required></div>
+                    <div class="form-group"><label>邮箱</label><input type="email" id="regEmail" required></div>
+                    <div class="form-group"><label>密码 (至少6位)</label><input type="password" id="regPassword" minlength="6" required></div>
+                    <button type="submit" class="btn btn-primary">注 册</button>
+                </form>
+                <p class="text-center mt-2">已有账号？<span class="link-text" id="goToLogin">去登录</span></p>
+            </div>
+        </div>`;
+    } else if (type === 'payment') {
+        const book = data;
+        html = `
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+                <h2>💳 购买书籍</h2>
+                <div style="text-align:center;margin:12px 0;">
+                    <div style="font-size:3.5rem;">${getCoverEmoji(book.title)}</div>
+                    <h3>${escapeHtml(book.title)}</h3>
+                    <p style="color:#64748b;">${escapeHtml(book.author)}</p>
+                    <p style="font-size:1.8rem;font-weight:800;color:var(--primary-dark);">¥${parseFloat(book.price).toFixed(2)}</p>
+                </div>
+                <button class="btn btn-gold" id="confirmPurchase">💰 确认支付</button>
+                <p class="text-center mt-2" style="font-size:0.72rem;color:#94a3b8;">演示环境，点击即完成支付</p>
+            </div>
+        </div>`;
+    } else if (type === 'share') {
+        const shareUrl = data;
+        html = `
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+                <h2>🔗 分享</h2>
+                <div class="share-card">
+                    <p style="font-size:0.85rem;color:#64748b;">复制链接分享给朋友</p>
+                    <div class="share-url" id="shareUrlText">${escapeHtml(shareUrl)}</div>
+                    <button class="btn-copy" id="copyShareBtn">📋 复制链接</button>
+                    <span id="copyFeedback" style="color:var(--success);display:none;margin-left:8px;">✓ 已复制</span>
+                </div>
+            </div>
+        </div>`;
+    } else if (type === 'addBook') {
+        const editData = data;
+        const isEdit = !!editData;
+        html = `
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+                <h2>${isEdit ? '✏️ 编辑书籍' : '📝 添加书籍'}</h2>
+                <form id="bookForm">
+                    <div class="form-group"><label>书名</label><input type="text" id="formTitle" value="${isEdit ? escapeHtml(editData.title) : ''}" required></div>
+                    <div class="form-group"><label>作者</label><input type="text" id="formAuthor" value="${isEdit ? escapeHtml(editData.author) : ''}" required></div>
+                    <div class="form-group"><label>价格 (0表示免费)</label><input type="number" id="formPrice" step="0.01" value="${isEdit ? editData.price : '0'}" required></div>
+                    <div class="form-group"><label>简介</label><input type="text" id="formDesc" value="${isEdit ? escapeHtml(editData.description) : ''}"></div>
+                    
+                    <!-- ===== PDF 上传 ===== -->
+                    <div class="form-group">
+                        <label>📄 上传 PDF 电子书（必需）</label>
+                        <div class="pdf-upload-zone" id="pdfUploadZone">
+                            <span class="icon">📂</span>
+                            <span class="hint">点击选择 PDF 文件</span>
+                            <div id="pdfFileName" style="margin-top:4px;font-size:0.8rem;color:var(--primary);"></div>
+                        </div>
+                        <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;">
+                        <div id="pdfStatus">📌 请上传 PDF 文件</div>
+                    </div>
+
+                    <!-- ===== 封面图片上传（可选） ===== -->
+                    <div class="form-group">
+                        <label>🖼️ 上传封面图片（可选，建议 1:1.5 比例）</label>
+                        <div class="cover-upload-zone" id="coverUploadZone">
+                            <span class="icon">🖼️</span>
+                            <span class="hint">点击选择封面图片（JPG/PNG）</span>
+                            <div id="coverFileName" style="margin-top:4px;font-size:0.8rem;color:var(--primary);"></div>
+                        </div>
+                        <input type="file" id="coverFileInput" accept="image/*" style="display:none;">
+                        <div id="coverStatus">📌 可选，不上传则使用默认图标</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">${isEdit ? '更新' : '添加'}</button>
+                </form>
+            </div>
+        </div>`;
+        window._editingBookId = isEdit ? editData.id : null;
+        window._pendingPDF = null;
+        window._pendingCover = null; // { data, type, name }
+    }
+
+    container.innerHTML = html;
+    document.body.style.overflow = 'hidden';
+
+    // ---- 事件绑定 ----
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    const closeBtn = document.getElementById('modalCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    const regForm = document.getElementById('registerForm');
+    if (regForm) regForm.addEventListener('submit', handleRegister);
+    const goToRegister = document.getElementById('goToRegister');
+    if (goToRegister) goToRegister.addEventListener('click', function() { closeModal(); setTimeout(() => openModal('register'), 100); });
+    const goToLogin = document.getElementById('goToLogin');
+    if (goToLogin) goToLogin.addEventListener('click', function() { closeModal(); setTimeout(() => openModal('login'), 100); });
+    const confirmPurchase = document.getElementById('confirmPurchase');
+    if (confirmPurchase && type === 'payment') {
+        confirmPurchase.addEventListener('click', function() { handlePurchase(data.id); });
+    }
+    const copyBtn = document.getElementById('copyShareBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const urlEl = document.getElementById('shareUrlText');
+            const fb = document.getElementById('copyFeedback');
+            if (urlEl) {
+                navigator.clipboard.writeText(urlEl.textContent).then(() => {
+                    if (fb) { fb.style.display = 'inline'; setTimeout(() => fb.style.display = 'none', 2000); }
+                    showToast('链接已复制 📋', 'success');
+                }).catch(() => showToast('复制失败，请手动复制', 'error'));
+            }
+        });
+    }
+
+    // ---- PDF 上传 ----
+    const pdfZone = document.getElementById('pdfUploadZone');
+    const pdfInput = document.getElementById('pdfFileInput');
+    const pdfStatus = document.getElementById('pdfStatus');
+    const pdfFileName = document.getElementById('pdfFileName');
+    if (pdfZone && pdfInput) {
+        pdfZone.addEventListener('click', function(e) { e.stopPropagation(); pdfInput.click(); });
+        pdfInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf') {
+                showToast('请选择 PDF 文件', 'error');
+                return;
+            }
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                window._pendingPDF = { data: arrayBuffer, name: file.name };
+                if (pdfFileName) pdfFileName.textContent = '📎 ' + file.name + ' (已上传)';
+                if (pdfStatus) pdfStatus.textContent = '✅ PDF 已就绪';
+                showToast('PDF 文件已准备', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('文件读取失败', 'error');
+            }
+        });
+    }
+
+    // ---- 封面上传 ----
+    const coverZone = document.getElementById('coverUploadZone');
+    const coverInput = document.getElementById('coverFileInput');
+    const coverStatus = document.getElementById('coverStatus');
+    const coverFileName = document.getElementById('coverFileName');
+    if (coverZone && coverInput) {
+        coverZone.addEventListener('click', function(e) { e.stopPropagation(); coverInput.click(); });
+        coverInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                showToast('请选择图片文件', 'error');
+                return;
+            }
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                window._pendingCover = { data: arrayBuffer, type: file.type, name: file.name };
+                if (coverFileName) coverFileName.textContent = '🖼️ ' + file.name + ' (已上传)';
+                if (coverStatus) coverStatus.textContent = '✅ 封面已就绪';
+                showToast('封面图片已准备', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('文件读取失败', 'error');
+            }
+        });
+    }
+
+    // ---- 表单提交 ----
+    const bookForm = document.getElementById('bookForm');
+    if (bookForm) {
+        bookForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('formTitle').value.trim();
+            const author = document.getElementById('formAuthor').value.trim();
+            const price = parseFloat(document.getElementById('formPrice').value) || 0;
+            const description = document.getElementById('formDesc').value.trim();
+
+            if (!title || !author) { showToast('请填写书名和作者', 'error'); return; }
+            if (!window._editingBookId && !window._pendingPDF) {
+                showToast('请上传 PDF 文件', 'error');
+                return;
+            }
+
+            const editId = window._editingBookId;
+            let books = getBooks();
+            let bookId = editId;
+            if (editId) {
+                const idx = books.findIndex(b => b.id === editId);
+                if (idx !== -1) {
+                    books[idx] = { ...books[idx], title, author, price: String(price), is_free: price === 0, description };
+                }
+                // PDF 更新
+                if (window._pendingPDF) {
+                    await deletePDF(editId);
+                    await savePDF(editId, window._pendingPDF.data, window._pendingPDF.name);
+                    books[idx].pdfName = window._pendingPDF.name;
+                }
+                // 封面更新
+                if (window._pendingCover) {
+                    await deleteCover(editId);
+                    await saveCover(editId, window._pendingCover.data, window._pendingCover.type, window._pendingCover.name);
+                    books[idx].coverName = window._pendingCover.name;
+                } else {
+                    // 如果用户删除了封面（未上传新封面），保留原有封面，不删除
+                    // 但这里我们无法区分“故意删除”，所以如果用户不上传新封面，则保留原封面。
+                    // 若要删除封面，可单独加一个删除按钮，但此处简化。
+                }
+            } else {
+                bookId = Date.now();
+                const newBook = { id: bookId, title, author, price: String(price), is_free: price === 0, description };
+                await savePDF(bookId, window._pendingPDF.data, window._pendingPDF.name);
+                newBook.pdfName = window._pendingPDF.name;
+                if (window._pendingCover) {
+                    await saveCover(bookId, window._pendingCover.data, window._pendingCover.type, window._pendingCover.name);
+                    newBook.coverName = window._pendingCover.name;
+                }
+                books.push(newBook);
+            }
+            saveBooks(books);
+            booksCache = books;
+            closeModal();
+            showToast(editId ? '✅ 已更新' : '✅ 已添加', 'success');
+            showPage('admin');
+        });
+    }
+}
+
+window.closeModal = function() {
+    document.getElementById('modalContainer').innerHTML = '';
+    document.body.style.overflow = '';
+    window._editingBookId = null;
+    window._pendingPDF = null;
+    window._pendingCover = null;
+};
+
+// ======================================================================
+//  认证、购买、路由、渲染（带封面显示）
+// ======================================================================
+
+function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const users = getUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        currentUser = user;
+        saveCurrentUser(user);
+        updateNavUI();
+        closeModal();
+        showToast('登录成功！', 'success');
+        showPage(window._currentPage || 'home');
+    } else {
+        showToast('用户名或密码错误', 'error');
+    }
+}
+
+function handleRegister(e) {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    if (!username || !email || password.length < 6) {
+        showToast('请完整填写，密码至少6位', 'error');
+        return;
+    }
+    const users = getUsers();
+    if (users.find(u => u.username === username)) {
+        showToast('用户名已存在', 'error');
+        return;
+    }
+    const newUser = { id: Date.now(), username, email, password, isAdmin: false };
+    users.push(newUser);
+    saveUsers(users);
+    currentUser = newUser;
+    saveCurrentUser(newUser);
+    updateNavUI();
+    closeModal();
+    showToast('注册成功！', 'success');
+    showPage(window._currentPage || 'home');
+}
+
+function logout() {
+    currentUser = null;
+    saveCurrentUser(null);
+    updateNavUI();
+    showToast('已退出登录');
+    showPage('home');
+}
+
+function handlePurchase(bookId) {
+    if (!currentUser) {
+        closeModal();
+        showToast('请先登录', 'error');
+        setTimeout(() => openModal('login'), 400);
+        return;
+    }
+    const purchases = getPurchases();
+    if (!purchases[currentUser.id]) purchases[currentUser.id] = [];
+    if (!purchases[currentUser.id].includes(bookId)) {
+        purchases[currentUser.id].push(bookId);
+        savePurchases(purchases);
+    }
+    closeModal();
+    showToast('购买成功！🎉', 'success');
+    showPage(window._currentPage, { bookId });
+}
+
+async function downloadPDF(bookId, fileName) {
+    try {
+        const record = await getPDF(bookId);
+        if (!record) {
+            showToast('PDF 文件不存在', 'error');
+            return;
+        }
+        const blob = new Blob([record.data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName || 'book.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error(err);
+        showToast('下载失败', 'error');
+    }
+}
+
+async function getCoverURL(bookId) {
+    try {
+        const record = await getCover(bookId);
+        if (!record) return null;
+        const blob = new Blob([record.data], { type: record.type });
+        return URL.createObjectURL(blob);
+    } catch (err) {
+        console.warn('获取封面失败', err);
+        return null;
+    }
+}
+
+// ---- 渲染卡片（带封面） ----
+function renderCard(book, idx) {
+    const free = book.is_free;
+    const purchased = hasPurchased(book.id);
+    const coverId = book.id;
+    // 异步获取封面，使用 data-cover-id 并在页面加载后替换
+    // 为了简化，我们在渲染时使用一个占位，然后在 mouted 后通过 JS 加载封面
+    // 因为封面图片是异步获取的，我们使用一个函数来更新卡片封面
+    // 但这里我们可以采用另一种方式：在渲染时给 img 标签设置一个临时 src，稍后替换
+    // 更好的方法：在渲染时直接通过 getCoverURL 获取，但它是异步的，我们需要回调。
+    // 这里简化：使用一个自定义属性，在页面加载完毕后通过 JS 统一加载封面。
+    // 由于是单页应用，我们在 showPage 后调用一个函数来加载所有封面。
+    // 因此，先渲染一个占位 img 或 emoji。
+    return `
+    <div class="book-card" onclick="showPage('detail', {bookId:${book.id}})">
+        <div class="book-cover" data-book-id="${book.id}">
+            <span class="emoji-placeholder">${getCoverEmoji(book.title)}</span>
+            <img src="" alt="封面" style="display:none;" />
+            <span class="price-tag ${free?'free':''}">${free ? '免费' : '¥'+parseFloat(book.price).toFixed(2)}</span>
+        </div>
+        <div class="book-info">
+            <h3>${escapeHtml(book.title)}</h3>
+            <p class="author">✍️ ${escapeHtml(book.author)}</p>
+            <p class="desc">${escapeHtml(book.description || '')}</p>
+            <div class="book-meta">
+                <span>📅 ${new Date(book.id).toLocaleDateString()}</span>
+                ${purchased ? '<span class="purchased-badge">✅ 已购</span>' : ''}
+            </div>
+        </div>
+    </div>`;
+}
+
+// ---- 加载所有书籍封面 ----
+async function loadCovers() {
+    const coverElements = document.querySelectorAll('.book-cover[data-book-id]');
+    for (const el of coverElements) {
+        const bookId = parseInt(el.dataset.bookId);
+        const img = el.querySelector('img');
+        const emoji = el.querySelector('.emoji-placeholder');
+        const url = await getCoverURL(bookId);
+        if (url && img) {
+            img.src = url;
+            img.style.display = 'block';
+            if (emoji) emoji.style.display = 'none';
+        }
+    }
+    // 也加载详情页封面
+    const detailCover = document.getElementById('detailCover');
+    if (detailCover) {
+        const bookId = parseInt(detailCover.dataset.bookId);
+        const url = await getCoverURL(bookId);
+        if (url) {
+            const img = detailCover.querySelector('img');
+            const emoji = detailCover.querySelector('.emoji-placeholder');
+            if (img && url) {
+                img.src = url;
+                img.style.display = 'block';
+                if (emoji) emoji.style.display = 'none';
+            }
+        }
+    }
+}
+
+window.showPage = function(page, params={}) {
+    window._currentPage = page;
+    document.getElementById('navLinks').classList.remove('open');
+    const container = document.getElementById('mainContent');
+    switch(page) {
+        case 'home': renderHome(container); break;
+        case 'detail': renderDetail(container, params.bookId); break;
+        case 'myBooks': renderMyBooks(container); break;
+        case 'profile': renderProfile(container); break;
+        case 'admin': renderAdmin(container); break;
+        default: renderHome(container);
+    }
+    // 页面渲染完成后加载封面
+    setTimeout(loadCovers, 100);
+    window.scrollTo({ top:0, behavior:'smooth' });
+};
+
+function renderHome(container) {
+    const freeBooks = booksCache.filter(b => b.is_free);
+    const paidBooks = booksCache.filter(b => !b.is_free);
+    if (booksCache.length === 0) {
+        container.innerHTML = `
+        <div class="hero">
+            <h1>📚 书享 · 管理员专属</h1>
+            <p>当前书库为空，请管理员登录后添加书籍。</p>
+        </div>
+        <div class="empty-state">
+            <p style="font-size:3rem;">📭</p>
+            <p style="font-size:1.2rem;color:var(--text-light);">还没有书籍，快去添加吧！</p>
+        </div>`;
+        return;
+    }
+    container.innerHTML = `
+    <div class="hero">
+        <h1>发现好书，下载PDF</h1>
+        <p>所有书籍均为 PDF 电子版，购买后即可下载阅读。</p>
+        <div class="badge-row">
+            <span class="badge">📚 ${booksCache.length} 本书</span>
+            <span class="badge">🔒 安全支付</span>
+            <span class="badge">🔗 一键分享</span>
+        </div>
+    </div>
+    ${freeBooks.length ? `<div class="section-title">🆓 免费好书</div><div class="book-grid">${freeBooks.map((b,i) => renderCard(b,i)).join('')}</div>` : ''}
+    ${paidBooks.length ? `<div class="section-title">💎 精品付费</div><div class="book-grid">${paidBooks.map((b,i) => renderCard(b,i+freeBooks.length)).join('')}</div>` : ''}
+    `;
+}
+
+function renderDetail(container, bookId) {
+    const book = booksCache.find(b => b.id === parseInt(bookId));
+    if (!book) { container.innerHTML = '<p style="text-align:center;padding:60px;">📭 书籍未找到</p>'; return; }
+    const free = book.is_free;
+    const purchased = hasPurchased(book.id);
+    const canRead = free || purchased;
+    const shareUrl = window.location.href.split('?')[0] + '?bookId=' + book.id;
+    const hasPDF = !!book.pdfName;
+
+    container.innerHTML = `
+    <div style="margin-bottom:14px;">
+        <span style="cursor:pointer;color:var(--primary);font-weight:500;" onclick="showPage('home')">← 返回首页</span>
+    </div>
+    <div class="detail-header">
+        <div class="detail-cover" id="detailCover" data-book-id="${book.id}">
+            <span class="emoji-placeholder">${getCoverEmoji(book.title)}</span>
+            <img src="" alt="封面" style="display:none;" />
+        </div>
+        <div class="detail-meta">
+            <h2>${escapeHtml(book.title)}</h2>
+            <p class="author">✍️ ${escapeHtml(book.author)}</p>
+            <p style="color:#64748b;">${escapeHtml(book.description || '')}</p>
+            <p class="price-large">${free ? '🆓 免费' : '¥'+parseFloat(book.price).toFixed(2)}</p>
+            <div class="flex-row">
+                ${canRead ? '<span style="color:var(--success);font-weight:700;">✅ 已购买，可下载 PDF</span>' :
+                    `<button class="btn btn-gold" style="width:auto;" onclick="openModal('payment', booksCache.find(b=>b.id===${book.id}))">💰 购买 ¥${parseFloat(book.price).toFixed(2)}</button>`}
+                <button class="btn btn-outline btn-sm" style="width:auto;" onclick="openModal('share','${escapeHtml(shareUrl).replace(/'/g,"\\'")}')">🔗 分享</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pdf-download-section">
+        <span class="big-icon">📄</span>
+        ${hasPDF ? `
+            <p class="msg">本书为 PDF 电子版，${canRead ? '点击下方按钮下载' : '购买后即可下载'}</p>
+            ${canRead ? `<button class="btn btn-primary" style="width:auto;margin-top:10px;" onclick="downloadPDF(${book.id}, '${escapeHtml(book.pdfName)}')">⬇️ 下载 PDF</button>` :
+                `<button class="btn btn-gold" style="width:auto;margin-top:10px;" onclick="openModal('payment', booksCache.find(b=>b.id===${book.id}))">🔓 购买后下载</button>`}
+        ` : `
+            <p class="msg">⚠️ 本书暂未上传 PDF 文件，请联系管理员。</p>
+        `}
+    </div>
+    `;
+}
+
+function renderMyBooks(container) {
+    if (!currentUser) {
+        container.innerHTML = `<div style="text-align:center;padding:80px;"><p style="font-size:3rem;">🔒</p><h2>请先登录</h2><button class="btn btn-primary mt-3" style="width:auto;" onclick="openModal('login')">去登录</button></div>`;
+        return;
+    }
+    const purchases = getPurchases();
+    const list = purchases[currentUser.id] || [];
+    const myBooks = booksCache.filter(b => list.includes(b.id));
+    container.innerHTML = `
+    <div class="section-title">📖 我的书籍 (${myBooks.length})</div>
+    ${myBooks.length ? `<div class="book-grid">${myBooks.map((b,i) => renderCard(b,i)).join('')}</div>` :
+        `<div style="text-align:center;padding:60px;color:#94a3b8;"><p>📭 还没有购买任何书籍</p><button class="btn btn-primary btn-sm mt-3" onclick="showPage('home')">去首页看看</button></div>`}
+    `;
+}
+
+function renderProfile(container) {
+    if (!currentUser) {
+        container.innerHTML = `<div style="text-align:center;padding:80px;"><p style="font-size:3rem;">🔒</p><h2>请先登录</h2><button class="btn btn-primary mt-3" style="width:auto;" onclick="openModal('login')">去登录</button></div>`;
+        return;
+    }
+    const purchases = getPurchases();
+    const count = (purchases[currentUser.id] || []).length;
+    container.innerHTML = `
+    <div style="max-width:500px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 10px;">${currentUser.username.charAt(0).toUpperCase()}</div>
+            <h2>${escapeHtml(currentUser.username)}</h2>
+            <p style="color:#64748b;">${escapeHtml(currentUser.email || '')}</p>
+            ${currentUser.isAdmin ? '<span class="badge-admin">⚙️ 管理员</span>' : ''}
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:var(--shadow);">
+            <p style="font-weight:600;">📊 账户概览</p>
+            <p>📚 已购书籍：<strong>${count} 本</strong></p>
+        </div>
+        <button class="btn btn-outline mt-3" onclick="logout()">退出登录</button>
+    </div>`;
+}
+
+function renderAdmin(container) {
+    if (!isAdmin()) {
+        container.innerHTML = `<div style="text-align:center;padding:80px;"><p style="font-size:3rem;">🔒</p><h2>需要管理员权限</h2><p style="color:#94a3b8;">请使用 admin 账号登录</p><button class="btn btn-primary mt-3" style="width:auto;" onclick="openModal('login')">去登录</button></div>`;
+        return;
+    }
+    const books = getBooks();
+    container.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div class="section-title" style="margin:0;">⚙️ 书籍管理 (${books.length})</div>
+        <button class="btn btn-primary btn-sm" style="width:auto;" onclick="openModal('addBook', null)">➕ 添加书籍</button>
+    </div>
+    <div class="admin-panel">
+        ${books.length ? books.map(b => `
+            <div class="item-row">
+                <div class="item-info">
+                    <strong>${escapeHtml(b.title)}</strong>
+                    <span style="color:#64748b;font-size:0.85rem;"> — ${escapeHtml(b.author)}</span>
+                    <span style="color:${b.is_free ? 'var(--success)' : 'var(--primary)'};font-weight:600;font-size:0.8rem;margin-left:8px;">
+                        ${b.is_free ? '免费' : '¥'+parseFloat(b.price).toFixed(2)}
+                    </span>
+                    ${b.pdfName ? ' 📎' : ' ⚠️无PDF'}
+                    ${b.coverName ? ' 🖼️' : ''}
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('addBook', booksCache.find(bb=>bb.id===${b.id}))">✏️ 编辑</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteBook(${b.id})">🗑️ 删除</button>
+                </div>
+            </div>
+        `).join('') : '<p style="color:#94a3b8;padding:20px;text-align:center;">📭 暂无书籍，点击“添加书籍”开始</p>'}
+    </div>
+    <div style="margin-top:20px;padding:16px;background:#fef9e7;border-radius:12px;border:1px solid #fde68a;font-size:0.9rem;">
+        <p style="font-weight:600;">💡 提示</p>
+        <p style="color:#92400e;">所有书籍都必须上传 PDF 文件。封面图片可选，建议尺寸比例 1:1.5。</p>
+    </div>
+    `;
+}
+
+window.deleteBook = async function(bookId) {
+    if (!confirm('确定要删除这本书吗？')) return;
+    try {
+        await deletePDF(bookId);
+        await deleteCover(bookId);
+    } catch(e) { console.warn('删除资源失败', e); }
+    let books = getBooks();
+    books = books.filter(b => b.id !== bookId);
+    saveBooks(books);
+    booksCache = books;
+    showToast('已删除', 'success');
+    showPage('admin');
+};
+
+// ======================================================================
+//  初始化管理员
+// ======================================================================
+
+(function initAdmin() {
+    const users = getUsers();
+    if (!users.find(u => u.username === 'admin')) {
+        users.push({
+            id: 1,
+            username: 'admin',
+            email: 'admin@bookshare.com',
+            password: 'admin',
+            isAdmin: true
+        });
+        saveUsers(users);
+        console.log('✅ 管理员: admin/admin');
+    }
+})();
+
+// ======================================================================
+//  启动
+// ======================================================================
+
+updateNavUI();
+const urlParams = new URLSearchParams(window.location.search);
+const bookId = urlParams.get('bookId');
+if (bookId) {
+    showPage('detail', { bookId: parseInt(bookId) });
+} else {
+    showPage('home');
+}
+
+console.log('📚 书享平台已启动（支持上传封面），管理员: admin/admin');
+</script>
+</body>
+</html>
