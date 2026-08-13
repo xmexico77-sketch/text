@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>📚 书享 · 您的专属</title>
     <style>
-        /* ===== 所有样式 ===== */
+        /* ===== 所有样式保持不变（与之前完全一致） ===== */
         :root {
             --primary: #4f46e5;
             --primary-light: #6366f1;
@@ -514,7 +514,7 @@ function openModal(type, data=null) {
                     <button type="submit" class="btn btn-primary">登 录</button>
                 </form>
                 <p class="text-center mt-2">还没有账号？<span class="link-text" id="goToRegister">立即注册</span></p>
-                <p class="text-center mt-2" style="font-size:0.75rem;color:#94a3b8;">管理员账号: admin / admin</p>
+                <p class="text-center mt-2" style="font-size:0.75rem;color:#94a3b8;">管理员账号: 1234567890 / 123456</p>
             </div>
         </div>`;
     } else if (type === 'register') {
@@ -608,7 +608,7 @@ function openModal(type, data=null) {
         </div>`;
         window._editingBookId = isEdit ? editData.id : null;
         window._pendingPDF = null;
-        window._pendingCover = null; // { data, type, name }
+        window._pendingCover = null;
     }
 
     container.innerHTML = html;
@@ -724,21 +724,15 @@ function openModal(type, data=null) {
                 if (idx !== -1) {
                     books[idx] = { ...books[idx], title, author, price: String(price), is_free: price === 0, description };
                 }
-                // PDF 更新
                 if (window._pendingPDF) {
                     await deletePDF(editId);
                     await savePDF(editId, window._pendingPDF.data, window._pendingPDF.name);
                     books[idx].pdfName = window._pendingPDF.name;
                 }
-                // 封面更新
                 if (window._pendingCover) {
                     await deleteCover(editId);
                     await saveCover(editId, window._pendingCover.data, window._pendingCover.type, window._pendingCover.name);
                     books[idx].coverName = window._pendingCover.name;
-                } else {
-                    // 如果用户删除了封面（未上传新封面），保留原有封面，不删除
-                    // 但这里我们无法区分“故意删除”，所以如果用户不上传新封面，则保留原封面。
-                    // 若要删除封面，可单独加一个删除按钮，但此处简化。
                 }
             } else {
                 bookId = Date.now();
@@ -875,7 +869,7 @@ async function getCoverURL(bookId) {
     }
 }
 
-// ---- 渲染卡片（带封面） ----
+// ---- 渲染卡片 ----
 function renderCard(book, idx) {
     const free = book.is_free;
     const purchased = hasPurchased(book.id);
@@ -898,7 +892,7 @@ function renderCard(book, idx) {
     </div>`;
 }
 
-// ---- 加载所有书籍封面 ----
+// ---- 加载封面 ----
 async function loadCovers() {
     const coverElements = document.querySelectorAll('.book-cover[data-book-id]');
     for (const el of coverElements) {
@@ -912,7 +906,6 @@ async function loadCovers() {
             if (emoji) emoji.style.display = 'none';
         }
     }
-    // 也加载详情页封面
     const detailCover = document.getElementById('detailCover');
     if (detailCover) {
         const bookId = parseInt(detailCover.dataset.bookId);
@@ -929,6 +922,10 @@ async function loadCovers() {
     }
 }
 
+// ======================================================================
+//  页面路由与渲染
+// ======================================================================
+
 window.showPage = function(page, params={}) {
     window._currentPage = page;
     document.getElementById('navLinks').classList.remove('open');
@@ -941,29 +938,39 @@ window.showPage = function(page, params={}) {
         case 'admin': renderAdmin(container); break;
         default: renderHome(container);
     }
-    // 页面渲染完成后加载封面
     setTimeout(loadCovers, 100);
     window.scrollTo({ top:0, behavior:'smooth' });
 };
 
+// ===== 首页 =====
 function renderHome(container) {
     const freeBooks = booksCache.filter(b => b.is_free);
     const paidBooks = booksCache.filter(b => !b.is_free);
 
-    // 构建书籍列表 HTML
+    const badgeBooks = currentUser ? `📚 ${booksCache.length} 本书` : '🔒 登录可见';
+
     let booksHtml = '';
-    if (booksCache.length === 0) {
+    if (!currentUser) {
         booksHtml = `
-        <div class="empty-state">
-            <p style="font-size:3rem;">📭</p>
-            <p style="font-size:1.2rem;color:var(--text-light);">还没有书籍，快去添加吧！</p>
+        <div class="empty-state" style="padding:40px 20px;">
+            <p style="font-size:2rem;">🔒</p>
+            <p style="font-size:1.2rem;color:var(--text-light);">请先登录以查看书籍</p>
+            <button class="btn btn-primary btn-sm mt-3" style="width:auto;" onclick="openModal('login')">去登录</button>
         </div>`;
     } else {
-        if (freeBooks.length) {
-            booksHtml += `<div class="section-title">🆓 免费好书</div><div class="book-grid">${freeBooks.map((b,i) => renderCard(b,i)).join('')}</div>`;
-        }
-        if (paidBooks.length) {
-            booksHtml += `<div class="section-title">💎 精品付费</div><div class="book-grid">${paidBooks.map((b,i) => renderCard(b,i+freeBooks.length)).join('')}</div>`;
+        if (booksCache.length === 0) {
+            booksHtml = `
+            <div class="empty-state">
+                <p style="font-size:3rem;">📭</p>
+                <p style="font-size:1.2rem;color:var(--text-light);">还没有书籍，快去添加吧！</p>
+            </div>`;
+        } else {
+            if (freeBooks.length) {
+                booksHtml += `<div class="section-title">🆓 免费好书</div><div class="book-grid">${freeBooks.map((b,i) => renderCard(b,i)).join('')}</div>`;
+            }
+            if (paidBooks.length) {
+                booksHtml += `<div class="section-title">💎 精品付费</div><div class="book-grid">${paidBooks.map((b,i) => renderCard(b,i+freeBooks.length)).join('')}</div>`;
+            }
         }
     }
 
@@ -972,7 +979,7 @@ function renderHome(container) {
         <h1>📚 书享，您的专属</h1>
         <p>登录或注册你的账号下载书籍吧</p>
         <div class="badge-row">
-            <span class="badge">📚 ${booksCache.length} 本书</span>
+            <span class="badge">${badgeBooks}</span>
             <span class="badge">🔒 安全支付</span>
             <span class="badge">🔗 一键分享</span>
         </div>
@@ -1065,7 +1072,7 @@ function renderProfile(container) {
 
 function renderAdmin(container) {
     if (!isAdmin()) {
-        container.innerHTML = `<div style="text-align:center;padding:80px;"><p style="font-size:3rem;">🔒</p><h2>需要管理员权限</h2><p style="color:#94a3b8;">请使用 admin 账号登录</p><button class="btn btn-primary mt-3" style="width:auto;" onclick="openModal('login')">去登录</button></div>`;
+        container.innerHTML = `<div style="text-align:center;padding:80px;"><p style="font-size:3rem;">🔒</p><h2>需要管理员权限</h2><p style="color:#94a3b8;">请使用管理员账号登录</p><button class="btn btn-primary mt-3" style="width:auto;" onclick="openModal('login')">去登录</button></div>`;
         return;
     }
     const books = getBooks();
@@ -1115,22 +1122,23 @@ window.deleteBook = async function(bookId) {
 };
 
 // ======================================================================
-//  初始化管理员
+//  强制重置管理员账号（彻底解决登录问题）
 // ======================================================================
 
 (function initAdmin() {
-    const users = getUsers();
-    if (!users.find(u => u.username === 'admin')) {
-        users.push({
-            id: 1,
-            username: 'admin',
-            email: 'admin@bookshare.com',
-            password: 'admin',
-            isAdmin: true
-        });
-        saveUsers(users);
-        console.log('✅ 管理员: admin/admin');
-    }
+    let users = getUsers();
+    // 先删除所有旧的管理员账号（包括 admin 和任何 isAdmin: true 的账号）
+    users = users.filter(u => u.isAdmin !== true);
+    // 再重新添加新的管理员
+    users.push({
+        id: 1,
+        username: '1234567890',
+        email: 'admin@bookshare.com',
+        password: '123456',
+        isAdmin: true
+    });
+    saveUsers(users);
+    console.log('✅ 管理员账号已强制重置为: 1234567890 / 123456');
 })();
 
 // ======================================================================
@@ -1146,7 +1154,7 @@ if (bookId) {
     showPage('home');
 }
 
-console.log('📚 书享平台已启动（支持上传封面），管理员: admin/admin');
+console.log('📚 书享平台已启动，管理员账号: 1234567890 / 123456');
 </script>
 </body>
 </html>
